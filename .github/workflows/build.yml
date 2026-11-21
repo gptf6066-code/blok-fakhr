@@ -27,18 +27,18 @@ jobs:
         run: gradle :app:assembleRelease --no-daemon --stacktrace
 
       - name: Rename APK
-        run: cp app/build/outputs/apk/release/app-release.apk Blok-Puzzle.apk
+        run: cp app/build/outputs/apk/release/app-release.apk Bloki-Fakhr.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Blok-Puzzle-APK
-          path: Blok-Puzzle.apk
+          name: Bloki-Fakhr-APK
+          path: Bloki-Fakhr.apk
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.${{ github.run_number }}
-          name: Блок Пазл v1.${{ github.run_number }}
+          name: Блоки Фахр v1.${{ github.run_number }}
           body: |
-            Файли **Blok-Puzzle.apk**-ро зеркашӣ кунед ва дар телефони Android насб кунед.
-          files: Blok-Puzzle.apk
+            Файли **Bloki-Fakhr.apk**-ро зеркашӣ кунед ва дар телефони Android насб кунед.
+          files: Bloki-Fakhr.apk
