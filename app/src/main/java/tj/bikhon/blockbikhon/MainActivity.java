@@ -1,4 +1,4 @@
-package tj.bikhon.blokpuzzle;
+package tj.bikhon.blockbikhon;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -30,7 +30,6 @@ public class MainActivity extends Activity {
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);           // рекорд ва бозии нигоҳдошта
-        s.setDatabaseEnabled(true);
         s.setMediaPlaybackRequiresUserGesture(false); // садоҳо
         s.setAllowFileAccess(true);
         s.setTextZoom(100);

@@ -1,4 +1,4 @@
-name: Сохтани APK
+name: Сохтани APK ва AAB
 
 on:
   push:
@@ -21,18 +21,42 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.7'
+          gradle-version: '8.11.1'
 
-      - name: Build APK
-        run: gradle :app:assembleRelease --no-daemon --stacktrace
+      - name: Калиди махфии Google Play
+        env:
+          KS_B64: ${{ secrets.UPLOAD_KEYSTORE_B64 }}
+          KS_PASS: ${{ secrets.UPLOAD_KEYSTORE_PASSWORD }}
+          KS_ALIAS: ${{ secrets.UPLOAD_KEY_ALIAS }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            echo "UPLOAD_KEYSTORE_FILE=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+            echo "UPLOAD_KEYSTORE_PASSWORD=$KS_PASS" >> "$GITHUB_ENV"
+            echo "UPLOAD_KEY_ALIAS=${KS_ALIAS:-upload}" >> "$GITHUB_ENV"
+            echo "PLAY_SIGNED=1" >> "$GITHUB_ENV"
+            echo "Калиди махфӣ ёфт шуд: AAB барои Google Play сохта мешавад."
+          else
+            echo "PLAY_SIGNED=0" >> "$GITHUB_ENV"
+            echo "Калиди махфӣ нест: танҳо APK-и санҷишӣ сохта мешавад."
+          fi
 
-      - name: Rename APK
-        run: cp app/build/outputs/apk/release/app-release.apk Block-Bikhon.apk
+      - name: Build APK and AAB
+        run: gradle :app:assembleRelease :app:bundleRelease --no-daemon --stacktrace
+
+      - name: Collect files
+        run: |
+          mkdir -p out
+          cp app/build/outputs/apk/release/app-release.apk out/Block-Bikhon.apk
+          if [ "$PLAY_SIGNED" = "1" ]; then
+            cp app/build/outputs/bundle/release/app-release.aab out/Block-Bikhon-GooglePlay.aab
+          fi
+          ls -la out
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Block-Bikhon-APK
-          path: Block-Bikhon.apk
+          name: Block-Bikhon
+          path: out/*
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
@@ -40,5 +64,6 @@ jobs:
           tag_name: v1.${{ github.run_number }}
           name: Block Bikhon v1.${{ github.run_number }}
           body: |
-            Файли **Block-Bikhon.apk**-ро зеркашӣ кунед ва дар телефони Android насб кунед. Аз ҷониби маркази таълимии БИХОН.
-          files: Block-Bikhon.apk
+            **Block-Bikhon.apk** — барои насб дар телефони Android.
+            **Block-Bikhon-GooglePlay.aab** — барои бор кардан ба Google Play Console (танҳо вақте ки калиди махфӣ дар GitHub Secrets гузошта шудааст).
+          files: out/*

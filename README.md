@@ -6,10 +6,14 @@
 
 Файли охирини **Block-Bikhon.apk**-ро аз саҳифаи [Releases](../../releases/latest) зеркашӣ кунед ва дар телефон насб кунед.
 
+Файли **Block-Bikhon-GooglePlay.aab** барои Google Play Console аст ва танҳо вақте сохта мешавад, ки калиди махфӣ дар GitHub Secrets гузошта шуда бошад (`UPLOAD_KEYSTORE_B64`, `UPLOAD_KEYSTORE_PASSWORD`, `UPLOAD_KEY_ALIAS`).
+
+Сиёсати махфият: https://gptf6066-code.github.io/blok-fakhr/privacy.html
+
 ## Сохтор
 
 - `app/src/main/assets/index.html` — худи бозӣ (HTML + JavaScript)
 - `app/src/main/java/.../MainActivity.java` — равзанаи Android, ки бозиро дар экрани пурра нишон медиҳад
 - `.github/workflows/build.yml` — GitHub ҳар дафъа APK-ро худкор месозад
 
-Калиди имзо (`app/blok.keystore`) барои истифодаи шахсӣ аст. Барои Google Play калиди алоҳида ва махфӣ лозим аст.
+Калиди `app/blok.keystore` танҳо барои APK-ҳои санҷишӣ аст. Барои Google Play калиди махфӣ аз GitHub Secrets истифода мешавад.

@@ -4,24 +4,36 @@ plugins {
 
 def runNumber = (System.getenv('GITHUB_RUN_NUMBER') ?: '1') as Integer
 
+// Калиди махфӣ барои Google Play аз GitHub Secrets меояд.
+// Агар он набошад, калиди санҷишии blok.keystore истифода мешавад (танҳо барои APK-и санҷишӣ).
+def uploadStore = System.getenv('UPLOAD_KEYSTORE_FILE')
+def usePlayKey = uploadStore != null && file(uploadStore).exists()
+
 android {
-    namespace 'tj.bikhon.blokpuzzle'
-    compileSdk 34
+    namespace 'tj.bikhon.blockbikhon'
+    compileSdk 36
 
     defaultConfig {
-        applicationId 'tj.bikhon.blokpuzzle'
-        minSdk 21
-        targetSdk 34
+        applicationId 'tj.bikhon.blockbikhon'
+        minSdk 23
+        targetSdk 36
         versionCode runNumber
         versionName "1.${runNumber}"
     }
 
     signingConfigs {
         release {
-            storeFile file('blok.keystore')
-            storePassword 'blokpuzzle'
-            keyAlias 'blok'
-            keyPassword 'blokpuzzle'
+            if (usePlayKey) {
+                storeFile file(uploadStore)
+                storePassword System.getenv('UPLOAD_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('UPLOAD_KEY_ALIAS') ?: 'upload'
+                keyPassword System.getenv('UPLOAD_KEYSTORE_PASSWORD')
+            } else {
+                storeFile file('blok.keystore')
+                storePassword 'blokpuzzle'
+                keyAlias 'blok'
+                keyPassword 'blokpuzzle'
+            }
         }
     }
 
@@ -33,7 +45,7 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
