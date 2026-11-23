@@ -186,6 +186,24 @@ input[type=range]{width:100%;accent-color:var(--acc);height:32px}
 @keyframes shine{to{background-position:-60% 0}}
 @keyframes dot{0%{transform:translate(-50%,-50%) scale(.3);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1);opacity:0}}
 @media(prefers-reduced-motion:reduce){.sp-e,.sp-w,.sp-t,.sp-ring,.sp-shine,.sp-dot{animation-duration:.01s;animation-delay:0s}}
+#tour{position:fixed;inset:0;z-index:80;display:none}
+#tour.on{display:block}
+#tSpot{position:fixed;border-radius:16px;box-shadow:0 0 0 9999px rgba(4,12,35,.74);transition:all .35s ease;pointer-events:none}
+#tSpot::after{content:'';position:absolute;inset:-6px;border:3px solid var(--acc);border-radius:20px;animation:tpulse 1s infinite}
+@keyframes tpulse{50%{transform:scale(1.04);opacity:.45}}
+#tTip{position:fixed;width:min(320px,calc(100vw - 24px));background:#fff;color:#10243a;border-radius:16px;padding:16px 16px 12px;box-shadow:0 12px 30px rgba(0,0,0,.35);transition:top .35s,left .35s;font-size:16px;line-height:1.45}
+#tNum{display:block;color:#0274b8;font-size:13px;font-weight:700;margin-bottom:4px}
+#tTip .tb{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px}
+#tTip button{border:0;border-radius:12px;min-height:44px;padding:0 18px;font:700 15px Rubik,Vazirmatn,sans-serif;cursor:pointer}
+#tNext{background:var(--acc);color:#fff;box-shadow:0 4px 0 var(--acc2)}
+#tSkip{background:transparent;color:#5b6b7d}
+#tHand{position:fixed;left:0;top:0;pointer-events:none;display:none;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45));font-size:44px;line-height:1}
+#tHand .hb{display:none;width:36px;height:36px;border-radius:7px;background-size:100% 100%;margin:0 0 -16px 16px}
+#tHand.drag{display:block;animation:tdrag 2.2s ease-in-out infinite}
+#tHand.drag .hb{display:block}
+#tHand.tap{display:block;animation:ttap 1s ease-in-out infinite}
+@keyframes tdrag{0%{transform:translate(var(--x0),var(--y0));opacity:0}12%{opacity:1;transform:translate(var(--x0),var(--y0)) scale(.9)}70%{transform:translate(var(--x1),var(--y1)) scale(.9);opacity:1}88%,100%{transform:translate(var(--x1),var(--y1));opacity:0}}
+@keyframes ttap{0%,100%{transform:translate(var(--x1),var(--y1))}50%{transform:translate(var(--x1),calc(var(--y1) + 12px)) scale(.9)}}
 @media(max-height:640px){.hint{display:none}}
 @media(prefers-reduced-motion:reduce){.c.pop,.c.morph,.boardwrap.shake{animation-duration:.01s}.msg div{animation-duration:.8s}}
 </style>
@@ -209,6 +227,7 @@ input[type=range]{width:100%;accent-color:var(--acc);height:32px}
   <div class="hint" id="hint"></div>
 </div>
 <canvas id="fx"></canvas>
+<div id="tour"><div id="tSpot"></div><div id="tHand"><i class="hb t3"></i><span>👆</span></div><div id="tTip" role="dialog"><span id="tNum"></span><span id="tTxt"></span><div class="tb"><button id="tSkip"></button><button id="tNext"></button></div></div></div>
 <div id="flash"></div>
 
 <div class="ov" id="home"><div class="card home">
@@ -254,6 +273,7 @@ input[type=range]{width:100%;accent-color:var(--acc);height:32px}
   </div>
   <button class="big-b" id="closeMenu"></button>
   <button class="big-b alt" id="menuRules"></button>
+  <button class="big-b alt" id="tourBtn"></button>
   <button class="big-b alt" id="newFromMenu"></button>
 </div></div>
 
@@ -261,7 +281,7 @@ input[type=range]{width:100%;accent-color:var(--acc);height:32px}
 {
 const LANGS={tg:'Тоҷикӣ',ru:'Русский',en:'English',fa:'فارسی'};
 const L={
-tg:{tagline:'Шаклҳоро гузоред, хатҳоро тоза кунед!',cont:'Идома додан',zones:'Саёҳати зонаҳо',zonesSub:'8 зона аз лой то алмос, ҳар яке душвортар',endless:'Бозии бепоён',endlessSub:'бе зона, то вақте ки ҷой ҳаст',rulesBtn:'Қоидаҳои бозӣ',lang:'Забон',
+tg:{tour:["Ин се шакли шумост. Шаклро бо ангушт гиред ва ба тахта кашед.", "Ин тахтаи бозӣ аст. Қатор ё сутунро пурра кунед: он тоза мешавад ва хол мегиред.", "Дар мобайн холи ҳозира, дар чап (бо тоҷ) рекорди шумо.", "Ин ҷо ҳолати бозӣ ва зонаи ҳозира. Хат нишон медиҳад, ки то зонаи оянда чӣ қадар мондааст.", "«Ба ақиб»: агар шаклро хато гузоред, пахш кунед. Дар ҳар бозӣ 3 маротиба.", "Бомбаҳо. Онҳоро бо бозии хуб мегиред. Бомбаро пахш кунед, баъд ба катаки тахта занед.", "Меню. Дар он забон, ранг, овоз ва намуди блокҳо иваз мешаванд.", "Намуди блокҳоро ҳамин ҷо иваз кунед: Классикӣ, лой, чӯб, хишт, санг, ях, нуқра, тилло ё алмос. «Худкор» блокҳоро зона ба зона иваз мекунад.", "Ранги заминаи бозӣ ва ранги блокҳоро ҳамин ҷо интихоб кунед.", "Бозӣ ду намуд дорад: «Саёҳати зонаҳо» (8 зона, ҳар яке душвортар) ва «Бозии бепоён». Барои иваз кардани намуд «Бозии нав»-ро пахш кунед.", "Ҳамаи қоидаҳо ва тарзи гирифтани бомбаҳо дар ин тугма. Бозии хуш!"],tourNext:'Минбаъд',tourDone:'Оғоз!',tourSkip:'Гузаштан',tourMenu:'Омӯзиши бозӣ',tagline:'Шаклҳоро гузоред, хатҳоро тоза кунед!',cont:'Идома додан',zones:'Саёҳати зонаҳо',zonesSub:'8 зона, ҳар яке душвортар',endless:'Бозии бепоён',endlessSub:'бе зона, то вақте ки ҷой ҳаст',rulesBtn:'Қоидаҳои бозӣ',lang:'Забон',
  hint0:'Шаклҳоро ба тахта кашед. Қатор ё сутуни пурраро тоза кунед!',zone:'Зонаи {0}',endlessBar:'Бепоён',
  words:['Хуб!','Аъло!','Олӣ!','Афсона!','Мӯъҷиза!'],clean:'Тахта тоза!',combo:'Комбо {0}!',boom:'БУМ!',undo:'Ба ақиб',left:'Боқӣ: {0}',
  linesAt:'{0} хат якбора',perfect:'тахта тамоман тоза шуд',whyCombo:'комбо {0}',bombs:'{0} бомба',
@@ -286,7 +306,7 @@ tg:{tagline:'Шаклҳоро гузоред, хатҳоро тоза кунед
  <div class="bi">${B[2]}<div><b>Бомбаи ранг</b> — 4 хат ё зиёдтарро якбора тоза кунед ё тамоми тахтаро холӣ кунед. Ҳамаи блокҳои як рангро тоза мекунад.</div></div>
  <p>Ҳар блоке, ки бо бомба тоза мешавад, 2 хол медиҳад.</p>
  <h3>Ба ақиб</h3><p>Агар шаклро хато гузоред, тугмаи <b>↶</b>-ро пахш кунед. Он танҳо охирин ҳаракатро бармегардонад (як қадам). Дар ҳар бозӣ 3 маротиба. Холу бомбаҳое, ки бо он ҳаракат гирифтед, ҳам бармегарданд. Пас аз тамом шудани бозӣ ҳам кор мекунад.</p>`},
-ru:{tagline:'Ставьте фигуры, очищайте линии!',cont:'Продолжить',zones:'Путешествие по зонам',zonesSub:'8 зон от глины до алмаза, каждая сложнее',endless:'Бесконечная игра',endlessSub:'без зон, пока есть место',rulesBtn:'Правила игры',lang:'Язык',
+ru:{tour:["Это ваши три фигуры. Возьмите фигуру пальцем и перетащите на поле.", "Это игровое поле. Заполните ряд или столбец — он исчезнет, и вы получите очки.", "В центре — текущие очки, слева (с короной) — ваш рекорд.", "Здесь режим игры и текущая зона. Полоска показывает, сколько осталось до следующей зоны.", "«Отмена»: если поставили фигуру не туда, нажмите. 3 раза за игру.", "Бомбы. Их получают за хорошую игру. Нажмите на бомбу, затем на клетку поля.", "Меню. Здесь меняются язык, цвета, звук и вид блоков.", "Вид блоков меняется здесь: Классика, глина, дерево, кирпич, камень, лёд, серебро, золото или алмаз. «Авто» меняет блоки от зоны к зоне.", "Здесь выбирается цвет фона и цвета блоков.", "В игре два режима: «Путешествие по зонам» (8 зон, каждая сложнее) и «Бесконечная игра». Чтобы сменить режим, нажмите «Новая игра».", "Все правила и как получить бомбы — в этой кнопке. Приятной игры!"],tourNext:'Далее',tourDone:'Играть!',tourSkip:'Пропустить',tourMenu:'Обучение',tagline:'Ставьте фигуры, очищайте линии!',cont:'Продолжить',zones:'Путешествие по зонам',zonesSub:'8 зон, каждая сложнее',endless:'Бесконечная игра',endlessSub:'без зон, пока есть место',rulesBtn:'Правила игры',lang:'Язык',
  hint0:'Перетащите фигуры на поле. Заполните ряд или столбец!',zone:'Зона {0}',endlessBar:'Бесконечно',
  words:['Хорошо!','Отлично!','Супер!','Сказочно!','Чудо!'],clean:'Поле чистое!',combo:'Комбо {0}!',boom:'БУМ!',undo:'Отмена',left:'Осталось: {0}',
  linesAt:'{0} линии сразу',perfect:'поле полностью очищено',whyCombo:'комбо {0}',bombs:'{0} бомба',
@@ -311,7 +331,7 @@ ru:{tagline:'Ставьте фигуры, очищайте линии!',cont:'П
  <div class="bi">${B[2]}<div><b>Цветная бомба</b> — очистите 4 линии и больше сразу или полностью очистите поле. Убирает все блоки одного цвета.</div></div>
  <p>Каждый блок, убранный бомбой, приносит 2 очка.</p>
  <h3>Отмена</h3><p>Если поставили фигуру не туда, нажмите <b>↶</b>. Отменяется только последний ход (один шаг). 3 раза за игру. Очки и бомбы, полученные этим ходом, тоже вернутся. Работает и после окончания игры.</p>`},
-en:{tagline:'Place blocks, clear the lines!',cont:'Continue',zones:'Zone journey',zonesSub:'8 zones from clay to diamond, each one harder',endless:'Endless game',endlessSub:'no zones, play until the board is full',rulesBtn:'How to play',lang:'Language',
+en:{tour:["These are your three shapes. Hold a shape with your finger and drag it onto the board.", "This is the board. Fill a row or column completely: it clears and you score points.", "In the middle is your score; on the left (with the crown) is your best.", "Here you see the game mode and current zone. The bar shows how far the next zone is.", "Undo: placed a shape in the wrong spot? Tap here. 3 times per game.", "Bombs. You earn them by playing well. Tap a bomb, then tap a cell on the board.", "Menu. Change language, colors, sound and block style here.", "Change the block style here: Classic, clay, wood, brick, stone, ice, silver, gold or diamond. “Auto” changes blocks from zone to zone.", "Pick the background color and the block colors here.", "There are two game modes: “Zone journey” (8 zones, each one harder) and “Endless game”. Tap “New game” to switch mode.", "All the rules and how to earn bombs are behind this button. Have fun!"],tourNext:'Next',tourDone:'Play!',tourSkip:'Skip',tourMenu:'Tutorial',tagline:'Place blocks, clear the lines!',cont:'Continue',zones:'Zone journey',zonesSub:'8 zones, each one harder',endless:'Endless game',endlessSub:'no zones, play until the board is full',rulesBtn:'How to play',lang:'Language',
  hint0:'Drag shapes onto the board. Fill a row or column to clear it!',zone:'Zone {0}',endlessBar:'Endless',
  words:['Good!','Great!','Awesome!','Amazing!','Incredible!'],clean:'Board clear!',combo:'Combo {0}!',boom:'BOOM!',undo:'Undo',left:'Left: {0}',
  linesAt:'{0} lines at once',perfect:'board fully cleared',whyCombo:'combo {0}',bombs:'{0} bomb',
@@ -336,7 +356,7 @@ en:{tagline:'Place blocks, clear the lines!',cont:'Continue',zones:'Zone journey
  <div class="bi">${B[2]}<div><b>Color bomb</b> — clear 4 or more lines at once, or empty the whole board. Removes every block of one color.</div></div>
  <p>Each block removed by a bomb gives 2 points.</p>
  <h3>Undo</h3><p>Placed a shape in the wrong spot? Press <b>↶</b>. Only the last move is undone (one step). 3 times per game. Points and bombs earned by that move are taken back too. It also works after the game ends.</p>`},
-fa:{tagline:'قطعه‌ها را بگذارید، ردیف‌ها را پاک کنید!',cont:'ادامه',zones:'سفر منطقه‌ها',zonesSub:'۸ منطقه از گِل تا الماس، هر کدام سخت‌تر',endless:'بازی بی‌پایان',endlessSub:'بدون منطقه، تا وقتی جا هست',rulesBtn:'قوانین بازی',lang:'زبان',
+fa:{tour:["این سه شکل شماست. شکل را با انگشت بگیرید و روی صفحه بکشید.", "این صفحهٔ بازی است. یک ردیف یا ستون را کامل پر کنید: پاک می‌شود و امتیاز می‌گیرید.", "وسط امتیاز فعلی است و سمت دیگر (با تاج) رکورد شما.", "اینجا حالت بازی و منطقهٔ فعلی دیده می‌شود. نوار نشان می‌دهد تا منطقهٔ بعد چقدر مانده.", "برگشت: اگر شکل را اشتباه گذاشتید، اینجا را بزنید. در هر بازی ۳ بار.", "بمب‌ها. با بازی خوب به دست می‌آیند. روی بمب بزنید، بعد روی یک خانهٔ صفحه.", "منو. زبان، رنگ، صدا و نوع بلوک‌ها اینجا عوض می‌شود.", "نوع بلوک‌ها را اینجا عوض کنید: کلاسیک، گِل، چوب، آجر، سنگ، یخ، نقره، طلا یا الماس. «خودکار» بلوک‌ها را منطقه به منطقه عوض می‌کند.", "رنگ زمینه و رنگ بلوک‌ها را اینجا انتخاب کنید.", "بازی دو حالت دارد: «سفر منطقه‌ها» (۸ منطقه، هر کدام سخت‌تر) و «بازی بی‌پایان». برای عوض کردن حالت «بازی جدید» را بزنید.", "همهٔ قوانین و روش گرفتن بمب‌ها در این دکمه است. بازی خوبی داشته باشید!"],tourNext:'بعدی',tourDone:'شروع!',tourSkip:'رد شدن',tourMenu:'آموزش بازی',tagline:'قطعه‌ها را بگذارید، ردیف‌ها را پاک کنید!',cont:'ادامه',zones:'سفر منطقه‌ها',zonesSub:'۸ منطقه، هر کدام سخت‌تر',endless:'بازی بی‌پایان',endlessSub:'بدون منطقه، تا وقتی جا هست',rulesBtn:'قوانین بازی',lang:'زبان',
  hint0:'شکل‌ها را روی صفحه بکشید. یک ردیف یا ستون را پر کنید!',zone:'منطقه {0}',endlessBar:'بی‌پایان',
  words:['خوب!','عالی!','فوق‌العاده!','شگفت‌انگیز!','معجزه!'],clean:'صفحه پاک شد!',combo:'کمبو {0}!',boom:'بوم!',undo:'برگشت',left:'باقی‌مانده: {0}',
  linesAt:'{0} ردیف یک‌جا',perfect:'صفحه کاملاً پاک شد',whyCombo:'کمبو {0}',bombs:'{0} بمب',
@@ -412,9 +432,9 @@ for(let i=0;i<N*N;i++){const d=document.createElement('div');d.className='c';boa
 const R=Math.random;
 
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
-let set={theme:'bihon',lang:'tg',pal:'classic',sfx:true,mus:false,vol:70,snd:'soft',mat:'auto'};
+let set={theme:'bihon',lang:'tg',pal:'classic',sfx:true,mus:false,vol:70,snd:'soft',mat:'classic'};
 try{Object.assign(set,JSON.parse(ls.get('bp_set')||'{}'))}catch(_){}
-if(set.v!==2){set.theme='bihon';set.v=2}if(!THEMES[set.theme])set.theme='bihon';if(!LANGS[set.lang])set.lang='tg';if(!PALS[set.pal])set.pal='classic';if(!SNDS[set.snd])set.snd='soft';
+if(!set.v||set.v<2){set.theme='bihon'}if(!set.v||set.v<3){if(set.mat==='auto')set.mat='classic';set.v=3}if(!THEMES[set.theme])set.theme='bihon';if(!LANGS[set.lang])set.lang='tg';if(!PALS[set.pal])set.pal='classic';if(!SNDS[set.snd])set.snd='soft';
 if(set.mat!=='auto'&&!MATS.some(m=>m.id===set.mat))set.mat='auto';
 const saveSet=()=>ls.set('bp_set',JSON.stringify(set));
 const tr=(k,...a)=>{let v=(L[set.lang]||L.tg)[k];if(v==null)v=L.tg[k];return typeof v==='string'?v.replace(/\{(\d)\}/g,(_,i)=>a[i]):v};
@@ -664,7 +684,8 @@ function newTray(){const D=difficulty();let t,ok=false;
 function save(){ls.set('bp_state',JSON.stringify({v:3,mode,grid,tray,score,combo,miss,bombs,undoLeft,snap,over,zone}))}
 function newGame(md){mode=md;loadBest();grid=Array(N*N).fill(0);score=0;shown=0;combo=0;miss=0;bombs=[0,0,0];armed=-1;zone=0;undoLeft=UNDOS;snap=null;over=false;active=true;
   buildTex();newTray();['over','home','menu'].forEach(id=>$(id).classList.remove('on'));actEl.classList.remove('need');
-  render();renderTray();renderBombs();renderUndo();zoneUI();scoreEl.textContent=0;bestEl.textContent=best;save()}
+  render();renderTray();renderBombs();renderUndo();zoneUI();scoreEl.textContent=0;bestEl.textContent=best;save();
+  if(!ls.get('bp_tour'))setTimeout(startTour,450)}
 function render(morph){cells.forEach((d,i)=>{d.className='c';if(grid[i]){d.classList.add('f','t'+grid[i]);if(morph){void d.offsetWidth;d.classList.add('morph')}}})}
 function pieceHTML(p){const sh=SHAPES[p.s];let h='';const s=new Set(sh.cells.map(([a,b])=>a+','+b));
   for(let r=0;r<sh.h;r++)for(let c=0;c<sh.w;c++)h+=s.has(r+','+c)?`<div class="b t${p.k}"></div>`:'<div class="b e"></div>';
@@ -869,7 +890,8 @@ $('menu').addEventListener('click',e=>{
   else if(b.id==='tgMus'){set.mus=!set.mus;musStarted=true;refreshAll();updateMusic()}
   else if(b.id==='closeMenu'){$('menu').classList.remove('on')}
   else if(b.id==='menuRules'){$('menu').classList.remove('on');openRules()}
-  else if(b.id==='newFromMenu'){$('menu').classList.remove('on');openHome()}});
+  else if(b.id==='newFromMenu'){$('menu').classList.remove('on');openHome()}
+  else if(b.id==='tourBtn'){$('menu').classList.remove('on');startTour()}});
 $('vol').addEventListener('input',e=>{set.vol=+e.target.value;$('volTxt').textContent=set.vol+'%';audio();applyVol();saveSet()});
 $('vol').addEventListener('change',()=>playMat(false));
 $('menuBtn').addEventListener('click',()=>{audio();disarm();buildMenu();$('menu').classList.add('on')});
@@ -896,7 +918,7 @@ function applyLang(){const h=document.documentElement;h.lang=set.lang;h.dir=set.
   $('mZones').innerHTML=`${tr('zones')}<small>${tr('zonesSub')}</small>`;$('mEndless').innerHTML=`${tr('endless')}<small>${tr('endlessSub')}</small>`;
   T('overTitle','over');T('lblScore','score');T('lblBest','best');T('nb','newBest');T('again','again');T('overHome','chooseMode');
   T('menuTitle','menu');T('hLang','lang');T('hBlocks','blocks');T('hBg','bg');T('hCol','bcol');T('hSound','sound');T('lSfx','sfx');T('lMus','music');T('lVol','vol');T('hUi','uisnd');
-  T('closeMenu','done');T('menuRules','rules');T('newFromMenu','newGame');$('undoBtn').setAttribute('aria-label',tr('undo'));$('helpBtn').setAttribute('aria-label',tr('rules'));$('menuBtn').setAttribute('aria-label',tr('menu'));
+  T('closeMenu','done');T('tourBtn','tourMenu');T('menuRules','rules');T('newFromMenu','newGame');$('undoBtn').setAttribute('aria-label',tr('undo'));$('helpBtn').setAttribute('aria-label',tr('rules'));$('menuBtn').setAttribute('aria-label',tr('menu'));
   $('homeLangs').innerHTML=langBtns();$('menuLangs').innerHTML=langBtns();
   zoneUI();renderBombs();if($('menu').classList.contains('on'))buildMenu();if($('rules').classList.contains('on'))buildRules();
   if($('over').classList.contains('on'))$('overUndo').textContent=tr('undoN',undoLeft)}
@@ -907,6 +929,26 @@ function runSplash(){const sp=$('splash');if(!sp)return;const e=$('spE'),img=e.q
   const done=()=>{if(sp.classList.contains('out'))return;sp.classList.add('out');setTimeout(()=>sp.remove(),500)};
   setTimeout(done,RM?900:2300);sp.addEventListener('click',done)}
 
+/* ---------- tutorial ---------- */
+const TOUR=[{el:()=>slots.find(s=>s.innerHTML)||trayEl,drag:1},{el:()=>bwrap},{el:()=>document.querySelector('.top')},{el:()=>$('zonebar')},{el:()=>$('undoBtn'),tap:1},{el:()=>bombsEl,tap:1},{el:()=>$('menuBtn'),tap:1},{el:()=>$('matOpts'),tap:1,menu:1},{el:()=>[$('themeOpts'),$('palOpts')],tap:1,menu:1},{el:()=>$('newFromMenu'),tap:1,menu:1},{el:()=>$('helpBtn'),tap:1}];
+let tStep=-1;
+function startTour(){disarm();tStep=0;$('tour').classList.add('on');showStep()}
+function endTour(){$('tour').classList.remove('on');$('menu').classList.remove('on');$('tHand').className='';tStep=-1;ls.set('bp_tour','1')}
+function showStep(){const s=TOUR[tStep];if(s.menu){buildMenu();$('menu').classList.add('on');const e=[].concat(s.el())[0];(e.closest('.sec')||e).scrollIntoView({block:'center'})}else $('menu').classList.remove('on');
+  setTimeout(()=>placeStep(s),s.menu?280:40);if(s.menu)setTimeout(()=>{if(TOUR[tStep]===s)placeStep(s)},650)}
+function placeStep(s){const els=[].concat(s.el()),el=els[0],rs=els.map(e=>e.getBoundingClientRect()),r={left:Math.min(...rs.map(q=>q.left)),top:Math.min(...rs.map(q=>q.top)),right:Math.max(...rs.map(q=>q.right)),bottom:Math.max(...rs.map(q=>q.bottom))};r.width=r.right-r.left;r.height=r.bottom-r.top;const p=8,sp=$('tSpot');
+  Object.assign(sp.style,{left:r.left-p+'px',top:r.top-p+'px',width:r.width+2*p+'px',height:r.height+2*p+'px'});
+  $('tTxt').textContent=tr('tour')[tStep];$('tNum').textContent=`${tStep+1} / ${TOUR.length}`;$('tNext').textContent=tStep===TOUR.length-1?tr('tourDone'):tr('tourNext');$('tSkip').textContent=tr('tourSkip');
+  const tip=$('tTip'),tw=tip.offsetWidth,th=tip.offsetHeight,vw=innerWidth,vh=innerHeight;
+  const free=t=>t>=10&&t+th<=vh-10&&(t+th<=r.top-p-4||t>=r.bottom+p+4);let top=[r.bottom+p+16,r.top-p-16-th,vh-th-12,12].find(free);if(top==null)top=r.top>vh/2?12:vh-th-12;
+  tip.style.top=top+'px';tip.style.left=Math.min(vw-tw-12,Math.max(12,r.left+r.width/2-tw/2))+'px';
+  const h=$('tHand');h.className='';void h.offsetWidth;
+  if(s.drag){const b=bwrap.getBoundingClientRect();h.style.setProperty('--x0',r.left+r.width/2-30+'px');h.style.setProperty('--y0',r.top+r.height/2-20+'px');h.style.setProperty('--x1',b.left+b.width/2-30+'px');h.style.setProperty('--y1',b.top+b.height*.55+'px');h.className='drag'}
+  else if(s.tap){const tx=s.menu?el.querySelector('.opt.sel')||el.querySelector('.opt')||el:el,q=tx.getBoundingClientRect();h.style.setProperty('--x1',q.left+q.width/2-16+'px');h.style.setProperty('--y1',q.top+q.height/2-6+'px');h.className='tap'}}
+$('tNext').addEventListener('click',()=>{audio();play('pick');tStep++;if(tStep>=TOUR.length)endTour();else showStep()});
+$('tSkip').addEventListener('click',()=>endTour());
+addEventListener('resize',()=>{if(tStep>=0)showStep()});
+
 /* ---------- start ---------- */
 applyTheme();runSplash();
 let st=null;try{st=JSON.parse(ls.get('bp_state')||'null')}catch(_){}
@@ -914,7 +956,7 @@ if(st&&st.v===3&&Array.isArray(st.grid)&&st.grid.length===N*N){
   mode=st.mode==='endless'?'endless':'zones';loadBest();grid=st.grid;tray=st.tray;score=st.score|0;shown=score;combo=st.combo|0;miss=st.miss|0;
   bombs=Array.isArray(st.bombs)?st.bombs.map(n=>Math.min(MAXB,n|0)):[0,0,0];undoLeft=st.undoLeft??UNDOS;snap=st.snap||null;over=!!st.over;zone=mode==='zones'?zoneOfScore(score):0;active=true;
   buildTex();if(!Array.isArray(tray)||tray.every(x=>!x))newTray();render();renderTray();renderBombs();renderUndo();zoneUI();scoreEl.textContent=score;bestEl.textContent=best;
-  if(over)gameOver();else checkOver();
+  if(over)gameOver();else{checkOver();if(!ls.get('bp_tour'))setTimeout(startTour,RM?1000:2500)}
 }else{mode='zones';loadBest();const ob=+ls.get('bp_best')||0;best=ob;buildTex();newTray();render();renderTray();renderBombs();renderUndo();zoneUI();bestEl.textContent=best;openHome()}
 applyLang();
 }
