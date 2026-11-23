@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="AppTheme" parent="android:Theme.Material.NoActionBar.Fullscreen">
-        <item name="android:windowBackground">@android:color/black</item>
-        <item name="android:colorPrimary">#2b3fa8</item>
-        <item name="android:colorPrimaryDark">#2b3fa8</item>
-        <item name="android:colorAccent">#ffd23f</item>
+        <item name="android:windowBackground">@color/bihon_blue</item>
+        <item name="android:colorPrimary">#039DE0</item>
+        <item name="android:colorPrimaryDark">#039DE0</item>
+        <item name="android:colorAccent">#FFAB20</item>
     </style>
 </resources>

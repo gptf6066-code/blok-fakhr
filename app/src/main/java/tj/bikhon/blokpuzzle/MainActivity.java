@@ -22,11 +22,11 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         Window w = getWindow();
         w.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        w.setStatusBarColor(Color.parseColor("#2b3fa8"));
-        w.setNavigationBarColor(Color.parseColor("#2b3fa8"));
+        w.setStatusBarColor(Color.parseColor("#039de0"));
+        w.setNavigationBarColor(Color.parseColor("#039de0"));
 
         web = new WebView(this);
-        web.setBackgroundColor(Color.parseColor("#2b3fa8"));
+        web.setBackgroundColor(Color.parseColor("#039de0"));
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);           // рекорд ва бозии нигоҳдошта
