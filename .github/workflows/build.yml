@@ -27,18 +27,18 @@ jobs:
         run: gradle :app:assembleRelease --no-daemon --stacktrace
 
       - name: Rename APK
-        run: cp app/build/outputs/apk/release/app-release.apk Block-Fakhr.apk
+        run: cp app/build/outputs/apk/release/app-release.apk Block-Bikhon.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Block-Fakhr-APK
-          path: Block-Fakhr.apk
+          name: Block-Bikhon-APK
+          path: Block-Bikhon.apk
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.${{ github.run_number }}
-          name: Block Fakhr v1.${{ github.run_number }}
+          name: Block Bikhon v1.${{ github.run_number }}
           body: |
-            Файли **Block-Fakhr.apk**-ро зеркашӣ кунед ва дар телефони Android насб кунед. Аз ҷониби маркази таълимии БИХОН.
-          files: Block-Fakhr.apk
+            Файли **Block-Bikhon.apk**-ро зеркашӣ кунед ва дар телефони Android насб кунед. Аз ҷониби маркази таълимии БИХОН.
+          files: Block-Bikhon.apk
